@@ -6,10 +6,16 @@ before_install:
     - docker build -t jschweihs/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-    - docker run -e CI=true jschweihs/react-test npm test
+    - docker run -e CI=true jschweihs/react-test npm run test
 
 after_success:
     - docker build -t jschweihs/multi-client ./client
     - docker build -t jschweihs/multi-nginx ./nginx
     - docker build -t jschweihs/multi-server ./server
     - docker build -t jschweihs/multi-worker ./worker
+    # Login to docker CLI
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push jschweihs/multi-client
+    - docker push jschweihs/multi-nginx
+    - docker push jschweihs/multi-server
+    - docker push jschweihs/multi-worker
